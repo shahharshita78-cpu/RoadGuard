@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+
+# YOLO training runs
+runs/
+inference_results/
+
+# Model weights
+*.pt
+*.pkl
+
+# Database
+*.db
+
+# Media
+uploads/
+videos/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+venv/
+runs/
+datasets/
+*.zip
+*.pt
+*.pkl
+__pycache__/
+*.pyc
+uploads/
+temp/
+detections.db

@@ -1,0 +1,9 @@
+streamlit
+ultralytics
+opencv-python
+pillow
+pillow-heif
+geopy
+pydeck
+pandas
+sqlite3
