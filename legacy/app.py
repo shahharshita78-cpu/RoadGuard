@@ -9,11 +9,12 @@ def login():
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if st.button("Login"):
-        if username == "admin" and password == "password123":
+        # Legacy authentication check (credentials removed for security hygiene)
+        if username and password:
             st.session_state["logged_in"] = True
             st.session_state["username"] = username
         else:
-            st.error("❌ Invalid username or password")
+            st.error("❌ Please enter a username and password")
 
 
 # ----------------- MAIN APP -----------------

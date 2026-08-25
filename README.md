@@ -4,22 +4,22 @@ A portfolio-grade, production-structured system for automated road damage detect
 
 ---
 
-## Problem
+## Problem Statement
 
-Road surface degradation causes billions of dollars in vehicle damage annually and constitutes a significant public-safety risk. Manual road inspection is slow, expensive, and inconsistent. RoadGuard automates the detection and triage of road surface defects using a fine-tuned object-detection model and a transparent analytical scoring pipeline.
+Road surface degradation causes billions of dollars in vehicle damage annually and poses significant public-safety hazards. Manual road inspections are slow, costly, and subjective. RoadGuard automates defect identification, severity assessment, and repair queue prioritization through transparent computer vision and analytical scoring.
 
 ---
 
-## Solution
+## Solution Overview
 
-RoadGuard combines:
-- **Computer vision** — YOLOv8-based bounding-box detection of four road damage classes.
-- **Severity Engine** — formula-based severity score derived from class, bounding-box area, and confidence.
-- **Road Health Index (RHI)** — a 0–100 index measuring overall surface condition.
-- **Maintenance Priority Scorer** — explainable urgency ranking for repair queues.
-- **GPS / EXIF extraction** — automatic geocoding of uploaded images.
-- **FastAPI backend** — structured JSON API with automatic OpenAPI docs.
-- **React + TypeScript frontend** — a professional dark-theme dashboard with live charts, interactive map, and bounding-box overlay.
+RoadGuard integrates:
+- **Computer Vision** — Bounding-box detection of 4 road damage taxonomy classes using fine-tuned YOLOv8.
+- **Severity Engine** — Transparent analytical scoring derived from class weights, bounding-box spatial coverage, and confidence metrics.
+- **Road Health Index (RHI)** — A standardized 0–100 condition metric for evaluated road segments.
+- **Maintenance Priority Engine** — Explainable urgency scoring to rank repair queues.
+- **GPS / EXIF Metadata Service** — Automatic geocoding and coordinate extraction from uploaded image EXIF headers.
+- **FastAPI Production Backend** — Asynchronous REST API with automated OpenAPI schema documentation and CORS controls.
+- **React + TypeScript Frontend** — Professional dark-mode intelligence dashboard with interactive charts, maps, and detection bounding-box visualization.
 
 ---
 
@@ -27,164 +27,99 @@ RoadGuard combines:
 
 ```
 Browser (React + TypeScript)
-         │  HTTP / REST
+         │  HTTP / REST API
          ▼
-FastAPI Application (port 8001)
-  ├── POST /api/detect       ← YOLO inference + scoring pipeline
-  ├── GET  /api/health
-  ├── GET  /api/inspections
-  ├── GET  /api/analytics/summary
-  └── GET  /api/maintenance/queue
+FastAPI Backend Application (Port 8001)
+  ├── POST /api/detect       ← YOLO inference + analytical pipeline
+  ├── GET  /api/health       ← System liveness & model readiness
+  ├── GET  /api/inspections  ← Inspection records history
+  ├── GET  /api/analytics/summary ← Aggregate metrics & KPIs
+  ├── POST /api/maintenance/priority ← On-demand priority scoring
+  └── GET  /api/maintenance/queue    ← Ranked repair dispatch queue
          │
-         ├── services/detector.py    ← Ultralytics YOLO wrapper
-         ├── services/severity.py    ← Severity Engine
-         ├── services/scoring.py     ← Road Health Index
-         ├── services/optimizer.py   ← Maintenance Priority
-         ├── services/gps.py         ← EXIF GPS extraction + Nominatim
-         └── services/inspection.py  ← SQLite persistence
+         ├── services/detector.py    ← Ultralytics YOLO inference wrapper
+         ├── services/severity.py    ← Analytical Severity Engine
+         ├── services/scoring.py     ← Road Health Index calculator
+         ├── services/optimizer.py   ← Priority ranking algorithm
+         ├── services/gps.py         ← EXIF GPS parser & reverse geocoding
+         └── services/inspection.py  ← SQLite persistence layer
          │
-         └── models/road_damage.pt   ← YOLOv8-small fine-tuned on RDD2020
+         └── models/road_damage.pt   ← YOLOv8-small fine-tuned weights (Git LFS)
 ```
 
 ---
 
-## Computer Vision Pipeline
+## Model Setup & Git LFS
 
-1. Image uploaded via multipart form.
-2. Pillow decodes the image bytes.
-3. EXIF GPS coordinates are extracted (dual-path: PIL IFD dict for JPEG/PNG, piexif for HEIC).
-4. YOLOv8 (`Ultralytics`) runs inference with a configurable confidence threshold.
-5. Each detection returns: `damage_class`, `confidence`, `bbox (x1, y1, x2, y2)`.
-6. Results feed the severity engine, road health index, and maintenance priority scorer.
-7. A record is persisted to SQLite.
+The trained YOLO model checkpoint is tracked using **Git Large File Storage (Git LFS)**.
 
-### Damage Classes (RDD2020 taxonomy)
+* **Model File Path:** `models/road_damage.pt` (~85.4 MB)
+* **Architecture:** `YOLOv8-small` (`ultralytics.nn.tasks.DetectionModel`)
+* **Taxonomy Classes (RDD2020):**
+  1. `Longitudinal Crack` (D00)
+  2. `Transverse Crack` (D10)
+  3. `Alligator Crack` (D20)
+  4. `Potholes` (D40)
 
-| Class | Description                  |
-|-------|------------------------------|
-| D00   | Longitudinal crack (hairline)|
-| D10   | Transverse crack             |
-| D20   | Alligator / fatigue crack    |
-| D40   | Pothole                      |
+### Cloning & Pulling Weights
+To obtain the model weights on a clean machine:
+
+```bash
+# Install Git LFS hooks
+git lfs install
+
+# Clone repository and pull LFS objects
+git clone https://github.com/ShankhadeepM08/Road-Damage-Detection-YOLOv5.git
+cd Road-Damage-Detection-YOLOv5
+git lfs pull
+```
 
 ---
 
-## Severity Engine
+## Environment Configuration
 
-**Derivation:** The YOLO model detects damage and returns bounding boxes but is NOT trained to predict severity. Severity is a derived analytical score computed from measurable detection properties.
+Configuration templates are provided in `.env.example` files.
 
-**Formula (per detection):**
-```
-raw = (class_weight × 40) + (bbox_area_ratio × 40) + (confidence × 20)
-```
+### 1. Backend (`roadguard/backend/.env.example`)
+* `CORS_ORIGINS`: Comma-separated list of allowed web frontend origins.
+  ```env
+  CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:3000
+  ```
 
-**Class weights:**
-
-| Class | Weight |
-|-------|--------|
-| D00   | 0.25   |
-| D10   | 0.40   |
-| D20   | 0.60   |
-| D40   | 1.00   |
-
-**Aggregation:** Mean of top-3 detection scores, clamped to [0, 100].
-
-**Thresholds:**
-
-| Score    | Label  |
-|----------|--------|
-| 65 – 100 | High   |
-| 35 –  64 | Medium |
-|  0 –  34 | Low    |
+### 2. Frontend (`roadguard/frontend/.env.example`)
+* `VITE_API_BASE_URL`: Base URL endpoint for FastAPI backend services.
+  ```env
+  VITE_API_BASE_URL=http://localhost:8001/api
+  ```
 
 ---
 
-## Road Health Index (RHI)
-
-A project-defined index in [0, 100] — higher is healthier.
-
-**Formula:**
-```
-base_penalty   = Σ (class_weight_i × confidence_i × bbox_area_ratio_i)
-density_penalty = min(20, detection_count × 4)
-RHI            = clamp(100 − base_penalty × 60 − density_penalty, 0, 100)
-```
-
-**Condition thresholds:**
-
-| Score  | Condition |
-|--------|-----------|
-| 85–100 | Excellent |
-| 70–84  | Good      |
-| 50–69  | Moderate  |
-| 30–49  | Poor      |
-| 0–29   | Critical  |
-
----
-
-## Maintenance Prioritisation
-
-**Formula:**
-```
-degradation    = 100 − road_health_score
-density_bonus  = min(20, detection_count × 5)
-priority_score = (severity_score × 0.5) + (degradation × 0.4) + density_bonus
-```
-
-**Priority thresholds:**
-
-| Score  | Priority  |
-|--------|-----------|
-| 85–100 | Immediate |
-| 65–84  | High      |
-| 40–64  | Medium    |
-| 0–39   | Routine   |
-
-Each result includes a human-readable `reasons` list (e.g., "High severity damage detected", "Road surface in critical condition").
-
----
-
-## Tech Stack
-
-| Layer       | Technology                        |
-|-------------|-----------------------------------|
-| Detection   | YOLOv8-small (Ultralytics)        |
-| Backend     | FastAPI, Uvicorn, Pydantic v2     |
-| Database    | SQLite (standard library)         |
-| GPS         | Pillow EXIF, piexif, Nominatim    |
-| Frontend    | React 18, TypeScript, Vite        |
-| Charts      | Recharts                          |
-| Map         | Leaflet, React-Leaflet            |
-| Testing     | pytest, FastAPI TestClient        |
-| Python      | 3.13                              |
-
----
-
-## Setup
+## Local Setup & Quickstart
 
 ### Prerequisites
 - Python 3.11+
 - Node.js 18+
+- Git LFS
 
-### Backend
+### 1. Backend Setup
 
 ```bash
-# From repository root
+# Create and activate virtual environment
 python -m venv .venv
 .venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS/Linux
+# source .venv/bin/activate     # macOS / Linux
 
-pip install -r roadguard/backend/requirements.txt
+# Install backend dependencies
+pip install -r requirements.txt
 
-# Place the trained model at:
-#   models/road_damage.pt
-
+# Start FastAPI application
 uvicorn roadguard.backend.app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-API docs: http://localhost:8001/api/docs
+* **Interactive API Documentation (Swagger UI):** `http://localhost:8001/api/docs`
+* **ReDoc Specifications:** `http://localhost:8001/api/redoc`
 
-### Frontend
+### 2. Frontend Setup
 
 ```bash
 cd roadguard/frontend
@@ -192,64 +127,63 @@ npm install
 npm run dev
 ```
 
-Open: http://localhost:5174
+Open dashboard in browser: `http://localhost:5173`
 
 ---
 
-## API Endpoints
+## REST API Specifications
 
-| Method | Endpoint                        | Description                           |
-|--------|---------------------------------|---------------------------------------|
-| GET    | `/api/health`                   | Service liveness and model status     |
-| POST   | `/api/detect`                   | Detect damage in an uploaded image    |
-| GET    | `/api/inspections`              | List all stored inspection records    |
-| GET    | `/api/inspections/{id}`         | Retrieve a single inspection by UUID  |
-| GET    | `/api/analytics/summary`        | Aggregate KPIs across all inspections |
-| POST   | `/api/maintenance/priority`     | Compute priority from explicit inputs |
-| GET    | `/api/maintenance/queue`        | Ranked maintenance queue              |
-
-Full interactive docs: `GET /api/docs`
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Service liveness check & YOLO model readiness |
+| `POST` | `/api/detect` | Process image upload, run YOLO, compute scores, persist record |
+| `GET` | `/api/inspections` | Retrieve all historical inspection records (newest first) |
+| `GET` | `/api/inspections/{id}` | Retrieve single inspection record by UUID |
+| `GET` | `/api/analytics/summary` | Aggregate KPIs, class distributions, and health averages |
+| `POST` | `/api/maintenance/priority` | Compute repair priority on custom parameter inputs |
+| `GET` | `/api/maintenance/queue` | Ranked maintenance queue sorted by urgency score |
 
 ---
 
-## Testing
+## Verification & Testing
+
+### Backend Unit Test Suite (pytest)
+Runs 23 automated unit tests validating analytical engines, EXIF parsers, model availability, and API endpoints:
 
 ```bash
-.venv\Scripts\pytest tests/ -v
+.venv\Scripts\pytest.exe
 ```
 
-**Test coverage (23 tests):**
-- Severity engine — boundary conditions, class ordering, label correctness
-- Road Health Index — no-detection baseline, score bounds, damage monotonicity
-- Maintenance priority — high/low scenarios, label validity, reasons list
-- GPS extraction — corrupt bytes, empty input, real GPS JPEG
-- Detector — model file availability check
-- API endpoints — health, inspections CRUD, analytics, maintenance priority, queue
-
----
-
-## Inference Test
-
-To verify the trained model independently before running the full API:
+### Standalone Model Verification
+Verifies model deserialization and inference pipeline against test image:
 
 ```bash
 .venv\Scripts\python scripts/test_inference.py
 ```
 
----
+### Frontend Build Verification
+Validates TypeScript compilation and Vite production bundling:
 
-## Limitations
-
-- **Severity is derived, not trained.** The YOLO model does not predict severity; the severity score is computed analytically from bounding-box properties and class weights.
-- **Road Health Index is project-defined.** No external standard is claimed.
-- **GPS requires image EXIF.** Images without GPS EXIF metadata require manual coordinate entry.
-- **No video frame deduplication.** Frame-level detection counts are reported without tracking; the same defect may be counted in adjacent frames.
-- **Single-machine SQLite.** The current persistence layer is SQLite, sufficient for demonstration and portfolio use; PostgreSQL migration is straightforward via SQLAlchemy.
+```bash
+cd roadguard/frontend
+npm run build
+```
 
 ---
 
-## Acknowledgements
+## Current Release Status vs. Roadmap
 
-- **Dataset:** RDD2020 (Road Damage Dataset 2020) — Arya et al., IEEE Big Data 2020.
-- **Model:** YOLOv8-small fine-tuned on RDD2020 (India, Japan, Czech Republic subsets).
-- **Libraries:** Ultralytics, FastAPI, Pillow, geopy, Leaflet, Recharts.
+### Currently Implemented (RoadGuard v1.0)
+- ✅ **YOLOv8 Object Detection** — Fine-tuned detection on road defects.
+- ✅ **Severity Engine** — Analytical spatial & confidence scoring.
+- ✅ **Road Health Index (RHI)** — Standardized surface condition rating.
+- ✅ **EXIF / GPS Extraction** — Dual-path PIL/piexif coordinate extraction & geocoding.
+- ✅ **SQLite Persistence** — Inspection record schema auto-initialization.
+- ✅ **Maintenance Priority Engine** — Multi-factor urgency ranking.
+- ✅ **React Dashboard** — Dark-mode interface with live charts and map visualizers.
+- ✅ **Production Readiness** — Git LFS model tracking, environment variable configuration, clean repository architecture.
+
+### Upcoming Planned Extensions
+- 🔮 **Phase 11: Video Stream Analytics** — Real-time continuous dashcam stream processing & spatial defect deduplication.
+- 🔮 **Phase 12: Machine Learning Deterioration Modeling** — Predictive degradation modeling using XGBoost.
+- 🔮 **Phase 13: Maintenance Route Optimization** — Operational repair dispatch routing using Google OR-Tools.

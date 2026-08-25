@@ -17,10 +17,23 @@ from PIL import Image, ExifTags
 
 
 def _rational_to_decimal(vals) -> float:
-    """Convert an EXIF rational tuple ((d_n,d_d),(m_n,m_d),(s_n,s_d)) to decimal degrees."""
-    d = vals[0][0] / vals[0][1]
-    m = vals[1][0] / vals[1][1]
-    s = vals[2][0] / vals[2][1]
+    """Convert EXIF DMS values to decimal degrees.
+
+    Accepts two value forms produced by different PIL code-paths:
+      - IFDRational objects (from exif.get_ifd): directly float-castable.
+      - (numerator, denominator) tuples (from piexif): divide n by d.
+    """
+    def _to_float(v) -> float:
+        try:
+            # IFDRational supports direct float conversion
+            return float(v)
+        except TypeError:
+            # Raw (numerator, denominator) tuple from piexif
+            return v[0] / v[1]
+
+    d = _to_float(vals[0])
+    m = _to_float(vals[1])
+    s = _to_float(vals[2])
     return d + m / 60.0 + s / 3600.0
 
 
@@ -37,13 +50,14 @@ def extract_gps_from_bytes(file_bytes: bytes) -> Optional[Tuple[float, float]]:
     try:
         img = Image.open(io.BytesIO(file_bytes))
 
-        # Path A: standard PIL IFD dictionary
+        # Path A: PIL GPS sub-IFD via get_ifd(34853)
+        # NOTE: exif.get(34853) returns a raw int IFD offset, NOT a dict.
+        # exif.get_ifd(34853) correctly parses the GPS sub-IFD into a dict.
         exif = img.getexif()
-        if exif and len(exif):
-            tags = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
-            gps_info = tags.get("GPSInfo")
-            if isinstance(gps_info, dict):
-                gps = {ExifTags.GPSTAGS.get(t, t): gps_info[t] for t in gps_info}
+        if exif:
+            gps_ifd = exif.get_ifd(34853)
+            if gps_ifd:
+                gps = {ExifTags.GPSTAGS.get(t, t): gps_ifd[t] for t in gps_ifd}
                 if "GPSLatitude" in gps and "GPSLongitude" in gps:
                     lat = _rational_to_decimal(gps["GPSLatitude"])
                     lon = _rational_to_decimal(gps["GPSLongitude"])

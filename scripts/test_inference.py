@@ -1,4 +1,4 @@
-"""
+r"""
 Standalone inference verification script (Phase 3).
 
 Run from the repository root inside the virtual environment:

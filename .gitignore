@@ -1,37 +1,29 @@
-# Python
+# Python & Environments
 __pycache__/
 *.pyc
-
-# Virtual environment
+.venv/
 venv/
 
-# YOLO training runs
+# Node / Frontend build output
+node_modules/
+dist/
+.vite/
+
+# YOLO training runs & datasets
 runs/
 inference_results/
+datasets/
 
-# Model weights
-*.pt
-*.pkl
-
-# Database
+# Databases
 *.db
+detections.db
 
-# Media
+# Media & temp
 uploads/
 videos/
+temp/
+*.zip
 
 # OS files
 .DS_Store
 Thumbs.db
-
-venv/
-runs/
-datasets/
-*.zip
-*.pt
-*.pkl
-__pycache__/
-*.pyc
-uploads/
-temp/
-detections.db

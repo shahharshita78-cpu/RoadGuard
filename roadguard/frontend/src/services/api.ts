@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api' })
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+const api = axios.create({ baseURL })
 
 export interface BoundingBox { x1: number; y1: number; x2: number; y2: number }
 export interface Detection  { damage_class: string; confidence: number; bbox: BoundingBox }

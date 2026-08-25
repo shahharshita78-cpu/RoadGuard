@@ -2,7 +2,7 @@
 Unit tests for RoadGuard backend services and API endpoints.
 
 Run from the repository root inside the virtual environment:
-    .venv\Scripts\pytest tests/ -v
+    .venv\\Scripts\\pytest tests/ -v
 """
 from __future__ import annotations
 

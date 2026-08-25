@@ -33,10 +33,17 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
-# Allow the React frontend dev server to call the API during development.
+import os
+
+# Parse allowed origins from environment variable or default to local development ports
+cors_origins_raw = os.getenv(
+    "CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000"
+)
+allowed_origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
