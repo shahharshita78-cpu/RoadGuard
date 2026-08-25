@@ -28,12 +28,12 @@ function fmtSec(sec: number): string {
   return m > 0 ? `${m}m ${s}s` : `${s}s`
 }
 
-const CHART_COLORS = ['#fbbf24', '#22d3ee', '#34d399', '#f87171', '#fb923c']
+const CHART_COLORS = ['#151515', '#e5b52f', '#d97732', '#c94c4c', '#70706b']
 const TOOLTIP_STYLE = {
-  background: '#0f1525',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 8,
-  color: '#f1f5f9',
+  background: '#ffffff',
+  border: '1px solid #dcdcd6',
+  borderRadius: 4,
+  color: '#161616',
   fontSize: 12,
 }
 
@@ -59,7 +59,7 @@ function HistoryRow({ r }: { r: VideoInspectionRecord }) {
         onClick={() => setOpen(o => !o)}
         id={`video-history-row-${r.inspection_id}`}
       >
-        <span style={{ fontSize: '1.4rem' }}>🎬</span>
+        <span style={{ fontSize: '1.4rem' }}>[VI]</span>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', marginBottom: 2 }}>
             {r.video_name}
@@ -79,9 +79,9 @@ function HistoryRow({ r }: { r: VideoInspectionRecord }) {
         <div style={{ padding: '0 20px 20px', borderTop: '1px solid var(--border)' }}>
           <div className="grid-3" style={{ marginTop: 16, marginBottom: 16 }}>
             {[
-              { label: 'Total Defects', val: r.total_detections, sub: `${r.unique_detections} unique`, color: 'var(--cyan)' },
-              { label: 'Road Health', val: r.road_health_score, sub: r.road_condition, color: 'var(--green)' },
-              { label: 'Priority Score', val: r.priority_score, sub: r.priority, color: 'var(--amber)' },
+              { label: 'Total Defects', val: r.total_detections, sub: `${r.unique_detections} unique`, color: 'var(--text-primary)' },
+              { label: 'Road Health', val: r.road_health_score, sub: r.road_condition, color: 'var(--text-primary)' },
+              { label: 'Priority Score', val: r.priority_score, sub: r.priority, color: 'var(--text-primary)' },
             ].map(({ label, val, sub, color }) => (
               <div key={label} className="card" style={{ textAlign: 'center', padding: 16 }}>
                 <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>{label}</div>
@@ -130,12 +130,12 @@ function ResultPanel({ result }: { result: VideoInspectionRecord }) {
         <div className="kpi-card cyan">
           <div className="kpi-label">Unique Defects</div>
           <div className="kpi-value">{result.unique_detections}</div>
-          <div className="kpi-sub">{result.total_detections} total detections (deduplicated)</div>
+          <div className="kpi-sub">{result.total_detections} total detections</div>
         </div>
         <div className="kpi-card amber">
           <div className="kpi-label">Frames w/ Damage</div>
           <div className="kpi-value">{result.damage_frame_pct}%</div>
-          <div className="kpi-sub">{result.frames_with_damage} of {result.sampled_frames} sampled frames</div>
+          <div className="kpi-sub">{result.frames_with_damage} of {result.sampled_frames} sampled</div>
         </div>
         <div className="kpi-card green">
           <div className="kpi-label">Road Health</div>
@@ -166,9 +166,9 @@ function ResultPanel({ result }: { result: VideoInspectionRecord }) {
             ['Sampled Every', `${result.frame_interval} frames`],
             ['Avg Confidence', `${(result.avg_confidence * 100).toFixed(0)}%`],
           ].map(([label, val]) => (
-            <div key={label} style={{ background: 'var(--bg-primary)', borderRadius: 8, padding: '10px 14px' }}>
-              <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>{label}</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-all' }}>{val}</div>
+            <div key={label} style={{ background: 'var(--bg-primary)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>
+              <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4, fontWeight: 700 }}>{label}</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', wordBreak: 'break-all', fontFamily: 'monospace' }}>{val}</div>
             </div>
           ))}
         </div>
@@ -183,14 +183,14 @@ function ResultPanel({ result }: { result: VideoInspectionRecord }) {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="healthGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#151515" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#151515" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="t" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="t" tick={{ fill: '#70706b', fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                <YAxis domain={[0, 100]} tick={{ fill: '#9b9b95', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Area type="monotone" dataKey="health" stroke="#34d399" fill="url(#healthGrad)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="health" stroke="#151515" fill="url(#healthGrad)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -201,14 +201,14 @@ function ResultPanel({ result }: { result: VideoInspectionRecord }) {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="sevGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#e5b52f" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#e5b52f" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="t" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-                <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="t" tick={{ fill: '#70706b', fontSize: 10 }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+                <YAxis domain={[0, 100]} tick={{ fill: '#9b9b95', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Area type="monotone" dataKey="severity" stroke="#fbbf24" fill="url(#sevGrad)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="severity" stroke="#e5b52f" fill="url(#sevGrad)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -226,7 +226,7 @@ function ResultPanel({ result }: { result: VideoInspectionRecord }) {
                   <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {classDist.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                   </Bar>
                 </BarChart>
@@ -382,7 +382,7 @@ export default function VideoInspectionPage() {
             className={`btn ${tab === t ? 'btn-primary' : 'btn-secondary'}`}
             style={{ minWidth: 120 }}
           >
-            {t === 'upload' ? '📤 Analyse Video' : '📋 Past Inspections'}
+            {t === 'upload' ? 'Analyse Video' : 'Past Inspections'}
           </button>
         ))}
       </div>
@@ -401,11 +401,11 @@ export default function VideoInspectionPage() {
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="upload-icon">🎬</div>
-                <h3>{file ? file.name : 'Drop a road video here'}</h3>
-                <p>MP4, AVI, MOV, MKV, WEBM, M4V — click or drag to upload</p>
+                <div className="upload-icon">[VIDEO]</div>
+                <h3>{file ? file.name : 'Select Road Video'}</h3>
+                <p>MP4, AVI, MOV, MKV, WEBM, M4V format</p>
                 {file && (
-                  <p style={{ marginTop: 6, color: 'var(--cyan)', fontSize: '0.78rem' }}>
+                  <p style={{ marginTop: 6, color: 'var(--text-secondary)', fontSize: '0.78rem' }}>
                     {(file.size / 1024 / 1024).toFixed(1)} MB
                   </p>
                 )}
@@ -453,7 +453,7 @@ export default function VideoInspectionPage() {
                           ? `Uploading… ${uploadPct}%`
                           : 'Analysing frames…'}
                       </>
-                    : '🎬 Run Video Inspection'}
+                    : 'Run Video Inspection'}
                 </button>
 
                 {/* Upload progress bar */}
@@ -465,7 +465,7 @@ export default function VideoInspectionPage() {
                     </div>
                     <div className="score-bar-track">
                       <div
-                        className="score-bar-fill cyan"
+                        className="score-bar-fill amber"
                         style={{ width: `${uploadPct}%`, transition: 'width 0.3s ease' }}
                       />
                     </div>
@@ -518,7 +518,7 @@ export default function VideoInspectionPage() {
               {!result && !processing && (
                 <div className="card" style={{ padding: '48px 24px' }}>
                   <div className="empty-state">
-                    <div style={{ fontSize: '3rem', marginBottom: 12 }}>🛣️</div>
+                    <div style={{ fontSize: '3rem', marginBottom: 12 }}>[UP]</div>
                     <h3>No results yet</h3>
                     <p style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                       Select a video file and click Run Video Inspection to begin.
@@ -539,7 +539,7 @@ export default function VideoInspectionPage() {
               {history.length} video inspection{history.length !== 1 ? 's' : ''} on record.
             </p>
             <button className="btn btn-secondary" onClick={loadHistory} id="video-history-refresh-btn">
-              🔄 Refresh
+              Refresh
             </button>
           </div>
 
@@ -550,7 +550,7 @@ export default function VideoInspectionPage() {
           {!histLoading && history.length === 0 && (
             <div className="card">
               <div className="empty-state">
-                <div style={{ fontSize: '3rem', marginBottom: 12 }}>📭</div>
+                <div style={{ fontSize: '3rem', marginBottom: 12 }}>[EMPTY]</div>
                 <h3>No video inspections yet</h3>
                 <p style={{ marginTop: 8, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
                   Run a video inspection to see results here.

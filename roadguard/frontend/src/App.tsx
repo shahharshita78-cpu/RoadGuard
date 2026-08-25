@@ -1,22 +1,24 @@
 import { useState } from 'react'
-import Dashboard        from './pages/Dashboard'
-import Detection        from './pages/Detection'
-import History          from './pages/History'
-import RoadMap          from './pages/RoadMap'
-import Maintenance      from './pages/Maintenance'
-import VideoInspection  from './pages/VideoInspection'
+import Dashboard          from './pages/Dashboard'
+import Detection          from './pages/Detection'
+import History            from './pages/History'
+import RoadMap            from './pages/RoadMap'
+import Maintenance        from './pages/Maintenance'
+import VideoInspection    from './pages/VideoInspection'
 import PredictiveAnalytics from './pages/PredictiveAnalytics'
+import MaintenanceOptimizer from './pages/MaintenanceOptimizer'
 
-type Page = 'dashboard' | 'detection' | 'history' | 'map' | 'maintenance' | 'video' | 'predictions'
+type Page = 'dashboard' | 'detection' | 'video' | 'map' | 'history' | 'predictions' | 'maintenance' | 'optimizer'
 
-const PAGES: { id: Page; label: string; icon: string }[] = [
-  { id: 'dashboard',   label: 'Dashboard',        icon: '📊' },
-  { id: 'detection',   label: 'Detection',        icon: '🔍' },
-  { id: 'video',       label: 'Video Inspect',    icon: '🎬' },
-  { id: 'predictions', label: 'Predictive Risk',  icon: '>>' },
-  { id: 'history',     label: 'History',          icon: '📋' },
-  { id: 'map',         label: 'Road Map',         icon: '🗺️' },
-  { id: 'maintenance', label: 'Maintenance',      icon: '🔧' },
+const PAGES: { id: Page; label: string; number: string }[] = [
+  { id: 'dashboard',   label: 'Dashboard',        number: '01' },
+  { id: 'detection',   label: 'Image Inspection', number: '02' },
+  { id: 'video',       label: 'Video Inspection', number: '03' },
+  { id: 'map',         label: 'Road Map',         number: '04' },
+  { id: 'history',     label: 'History',          number: '05' },
+  { id: 'predictions', label: 'Predictive Risk',  number: '06' },
+  { id: 'maintenance', label: 'Maintenance',      number: '07' },
+  { id: 'optimizer',   label: 'Budget Optimizer', number: '08' },
 ]
 
 export default function App() {
@@ -27,7 +29,7 @@ export default function App() {
       <nav className="sidebar">
         <div className="sidebar-logo">
           <h1>RoadGuard</h1>
-          <p>Road Intelligence Platform</p>
+          <p>Road Condition Monitoring</p>
         </div>
         {PAGES.map(p => (
           <button
@@ -37,15 +39,16 @@ export default function App() {
             aria-label={p.label}
             id={`nav-${p.id}`}
           >
-            <span className="nav-icon">{p.icon}</span>
+            <span className="nav-icon">{p.number}</span>
             <span>{p.label}</span>
           </button>
         ))}
 
-        <div style={{ marginTop: 'auto', padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', lineHeight: 1.8 }}>
-            <div>YOLOv8 • FastAPI • SQLite</div>
-            <div style={{ color: 'var(--text-muted)', marginTop: 2 }}>v1.1.0</div>
+        <div style={{ marginTop: 'auto', padding: '16px 24px', borderTop: '1px solid var(--bg-dark-secondary)' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-dark-secondary)', lineHeight: 1.8 }}>
+            <div>SYSTEM ENGINE STATE: ACTIVE</div>
+            <div>MODEL VER: YOLOv8-SURVEY</div>
+            <div style={{ color: 'var(--text-dark-secondary)', marginTop: 2 }}>v1.2.0</div>
           </div>
         </div>
       </nav>
@@ -54,10 +57,11 @@ export default function App() {
         {active === 'dashboard'   && <Dashboard />}
         {active === 'detection'   && <Detection />}
         {active === 'video'       && <VideoInspection />}
-        {active === 'predictions' && <PredictiveAnalytics />}
-        {active === 'history'     && <History />}
         {active === 'map'         && <RoadMap />}
+        {active === 'history'     && <History />}
+        {active === 'predictions' && <PredictiveAnalytics />}
         {active === 'maintenance' && <Maintenance />}
+        {active === 'optimizer'   && <MaintenanceOptimizer />}
       </main>
     </div>
   )

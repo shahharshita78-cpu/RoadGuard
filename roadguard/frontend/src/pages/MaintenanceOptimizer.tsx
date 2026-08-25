@@ -152,9 +152,9 @@ export default function MaintenanceOptimizer() {
                 value={budget}
                 onChange={e => setBudget(Number(e.target.value))}
                 style={{
-                  background: 'var(--bg-primary)',
+                  background: 'var(--bg-secondary)',
                   border: '1px solid var(--border)',
-                  borderRadius: 6,
+                  borderRadius: 'var(--radius-sm)',
                   padding: '10px 14px',
                   color: 'var(--text-primary)',
                   fontSize: '1.2rem',
@@ -199,22 +199,22 @@ export default function MaintenanceOptimizer() {
       {latestPlan && (
         <div style={{ marginBottom: 24 }}>
           <div className="kpi-grid" style={{ marginBottom: 16 }}>
-            <div className="kpi-card cyan">
+            <div className="kpi-card kpi-card-dark">
               <div className="kpi-label">Allocated Budget</div>
               <div className="kpi-value">{formatCurrency(latestPlan.allocated_budget)}</div>
               <div className="kpi-sub">{latestPlan.selected_count} segments chosen</div>
             </div>
-            <div className="kpi-card green">
+            <div className="kpi-card kpi-card-dark">
               <div className="kpi-label">Remaining Budget</div>
               <div className="kpi-value">{formatCurrency(latestPlan.remaining_budget)}</div>
               <div className="kpi-sub">{(remainingPct).toFixed(0)}% unused</div>
             </div>
-            <div className="kpi-card amber">
+            <div className="kpi-card kpi-card-dark">
               <div className="kpi-label">Expected Net Benefit</div>
               <div className="kpi-value">{latestPlan.total_expected_benefit}</div>
               <div className="kpi-sub">Maximize target score sum</div>
             </div>
-            <div className="kpi-card red">
+            <div className="kpi-card kpi-card-dark">
               <div className="kpi-label">Avg Risk Reduction</div>
               <div className="kpi-value">{latestPlan.estimated_risk_reduction}%</div>
               <div className="kpi-sub">For chosen segments</div>
@@ -229,7 +229,7 @@ export default function MaintenanceOptimizer() {
             </div>
             <div className="score-bar-track" style={{ height: 16, borderRadius: 8 }}>
               <div
-                className="score-bar-fill cyan"
+                className="score-bar-fill green"
                 style={{ width: `${allocatedPct}%`, borderRadius: 8, height: 16 }}
               />
             </div>
@@ -264,7 +264,7 @@ export default function MaintenanceOptimizer() {
                 <tbody>
                   {latestPlan.selected_segments.map((s, idx) => (
                     <tr key={s.segment_id}>
-                      <td style={{ fontWeight: 600, color: 'var(--cyan)' }}>#{idx + 1}</td>
+                      <td style={{ fontWeight: 600, color: 'var(--amber)' }}>#{idx + 1}</td>
                       <td style={{ fontWeight: 600 }}>{s.segment_id}</td>
                       <td>{s.current_health}</td>
                       <td>{s.predicted_future_health}</td>
@@ -275,7 +275,7 @@ export default function MaintenanceOptimizer() {
                       </td>
                       <td>{s.maintenance_priority}</td>
                       <td style={{ fontWeight: 600 }}>{formatCurrency(s.estimated_cost)}</td>
-                      <td style={{ color: 'var(--amber)', fontWeight: 600 }}>{s.benefit_score}</td>
+                      <td style={{ color: 'var(--cyan)', fontWeight: 600 }}>{s.benefit_score}</td>
                       <td>
                         <ul className="reason-list" style={{ margin: 0, paddingLeft: 12 }}>
                           {s.reasons.map((r, i) => (

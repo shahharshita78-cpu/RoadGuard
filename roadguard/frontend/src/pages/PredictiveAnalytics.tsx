@@ -13,17 +13,17 @@ function riskBadgeClass(cat: string) {
 }
 
 const RISK_COLORS = {
-  LOW: '#34d399',
-  MEDIUM: '#fbbf24',
-  HIGH: '#fb923c',
-  CRITICAL: '#f87171'
+  LOW: '#4f8a5b',
+  MEDIUM: '#ebd073',
+  HIGH: '#d97732',
+  CRITICAL: '#c94c4c'
 }
 
 const TOOLTIP_STYLE = {
-  background: '#0f1525',
-  border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: 8,
-  color: '#f1f5f9',
+  background: '#ffffff',
+  border: '1px solid #dcdcd6',
+  borderRadius: 4,
+  color: '#161616',
   fontSize: 12,
 }
 
@@ -163,12 +163,12 @@ export default function PredictiveAnalytics() {
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={riskChartData} barCategoryGap="40%">
-                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: '#4b5563', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {riskChartData.map((entry) => (
-                    <Cell key={entry.name} fill={RISK_COLORS[entry.name as keyof typeof RISK_COLORS] || '#22d3ee'} />
+                    <Cell key={entry.name} fill={RISK_COLORS[entry.name as keyof typeof RISK_COLORS] || '#475569'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -197,7 +197,7 @@ export default function PredictiveAnalytics() {
                 </div>
                 <div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Training Dataset</div>
-                  <div style={{ fontWeight: 600, color: 'var(--cyan)' }}>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
                     {modelMeta.is_synthetic ? 'Synthetic (Prototype)' : 'Real Longitudinal'}
                   </div>
                 </div>
@@ -216,19 +216,19 @@ export default function PredictiveAnalytics() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                   <div style={{ background: 'var(--bg-primary)', padding: '6px 10px', borderRadius: 6, textAlign: 'center' }}>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>ROC-AUC</div>
-                    <div style={{ fontWeight: 700, color: 'var(--amber)', fontSize: '0.95rem' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                       {modelMeta.validation_metrics.classifier.roc_auc.toFixed(2)}
                     </div>
                   </div>
                   <div style={{ background: 'var(--bg-primary)', padding: '6px 10px', borderRadius: 6, textAlign: 'center' }}>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Precision</div>
-                    <div style={{ fontWeight: 700, color: 'var(--green)', fontSize: '0.95rem' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                       {modelMeta.validation_metrics.classifier.precision.toFixed(2)}
                     </div>
                   </div>
                   <div style={{ background: 'var(--bg-primary)', padding: '6px 10px', borderRadius: 6, textAlign: 'center' }}>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Recall (FNR)</div>
-                    <div style={{ fontWeight: 700, color: 'var(--red)', fontSize: '0.95rem' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                       {modelMeta.validation_metrics.classifier.recall.toFixed(2)}
                     </div>
                   </div>
@@ -250,7 +250,7 @@ export default function PredictiveAnalytics() {
                   {training ? 'Retraining model...' : 'Retrain Deterioration Model'}
                 </button>
                 {trainStatus && (
-                  <div style={{ marginTop: 6, fontSize: '0.75rem', color: 'var(--cyan)', textAlign: 'center' }}>
+                  <div style={{ marginTop: 6, fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
                     {trainStatus}
                   </div>
                 )}
@@ -285,8 +285,8 @@ export default function PredictiveAnalytics() {
                     onClick={() => setSelectedRoad(p.road_segment_id)}
                     style={{
                       cursor: 'pointer',
-                      background: selectedRoad === p.road_segment_id ? 'rgba(255,255,255,0.06)' : 'transparent',
-                      borderLeft: selectedRoad === p.road_segment_id ? '3px solid var(--amber)' : 'none'
+                      background: selectedRoad === p.road_segment_id ? 'var(--bg-card-hover)' : 'transparent',
+                      borderLeft: selectedRoad === p.road_segment_id ? '4px solid var(--amber)' : 'none'
                     }}
                   >
                     <td style={{ fontWeight: 600 }}>{p.road_segment_id}</td>
@@ -325,12 +325,12 @@ export default function PredictiveAnalytics() {
 
               {/* Urgency Recommendation Box */}
               <div style={{
-                background: 'rgba(34,211,238,0.05)',
-                border: '1px solid rgba(34,211,238,0.15)',
-                borderRadius: 8,
+                background: 'var(--bg-primary)',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
                 padding: '12px 16px',
                 marginBottom: 16,
-                color: 'var(--cyan)',
+                color: 'var(--text-secondary)',
                 fontSize: '0.85rem'
               }}>
                 <div style={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', marginBottom: 4 }}>
@@ -341,15 +341,15 @@ export default function PredictiveAnalytics() {
 
               {/* Current vs Future Health Score comparison */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-                <div style={{ background: 'var(--bg-primary)', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                <div style={{ background: 'var(--bg-primary)', borderRadius: 6, padding: 12, textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Current Health Index</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--green)' }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                     {selectedPrediction.feature_snapshot?.road_health_score ?? '–'}
                   </div>
                 </div>
-                <div style={{ background: 'var(--bg-primary)', borderRadius: 8, padding: 12, textAlign: 'center' }}>
+                <div style={{ background: 'var(--bg-primary)', borderRadius: 6, padding: 12, textAlign: 'center' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Predicted Future Health</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--amber)' }}>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                     {selectedPrediction.predicted_future_health}
                   </div>
                 </div>
@@ -386,12 +386,12 @@ export default function PredictiveAnalytics() {
                   </div>
                   <ResponsiveContainer width="100%" height={150}>
                     <LineChart data={roadHistory}>
-                      <XAxis dataKey="date" tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
-                      <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
+                      <XAxis dataKey="date" tick={{ fill: '#70706b', fontSize: 9 }} axisLine={false} tickLine={false} />
+                      <YAxis domain={[0, 100]} tick={{ fill: '#9b9b95', fontSize: 9 }} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={TOOLTIP_STYLE} />
                       <Legend verticalAlign="top" height={24} iconSize={10} wrapperStyle={{ fontSize: 10 }} />
-                      <Line type="monotone" name="Observed Health" dataKey="health" stroke="#34d399" strokeWidth={2} dot={{ r: 3 }} />
-                      <Line type="monotone" name="Future Predicted" dataKey="predicted_health" stroke="#fbbf24" strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 2 }} />
+                      <Line type="monotone" name="Observed Health" dataKey="health" stroke="#151515" strokeWidth={2} dot={{ r: 3 }} />
+                      <Line type="monotone" name="Future Predicted" dataKey="predicted_health" stroke="#e5b52f" strokeWidth={1.5} strokeDasharray="3 3" dot={{ r: 2 }} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
