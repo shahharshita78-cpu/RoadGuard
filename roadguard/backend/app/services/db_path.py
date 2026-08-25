@@ -1,19 +1,23 @@
 """
 Shared database path used by all persistence services.
-Reads DATABASE_URL from environment; falls back to the repo-root detections.db
-for local development.
+Reads ROADGUARD_DB_PATH from environment. If not provided, defaults to:
+- /tmp/roadguard/detections.db on Linux (writable on Render Free tier)
+- repo-root detections.db on Windows (local zero-config development)
 """
 from __future__ import annotations
 
 import os
+import platform
 from pathlib import Path
 
-# Environment variable takes precedence (used by Render and other cloud hosts).
-# Locally defaults to the repo-root detections.db.
-_env_db = os.getenv("DATABASE_URL")
+_env_db = os.getenv("ROADGUARD_DB_PATH")
 if _env_db:
     DB_PATH = Path(_env_db)
-    # Ensure the parent directory exists (e.g. /data on Render disk)
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 else:
-    DB_PATH = Path(__file__).parents[4] / "detections.db"
+    if platform.system() == "Windows":
+        DB_PATH = Path(__file__).parents[4] / "detections.db"
+    else:
+        DB_PATH = Path("/tmp/roadguard/detections.db")
+
+# Ensure the parent directory exists (e.g. /tmp/roadguard on Render)
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)

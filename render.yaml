@@ -13,8 +13,8 @@ services:
         value: "3.11.9"
       - key: CORS_ORIGINS
         value: https://roadguard-ui.onrender.com
-      - key: DATABASE_URL
-        value: /data/detections.db
+      - key: ROADGUARD_DB_PATH
+        value: /tmp/roadguard/detections.db
 
   # ── Frontend: Vite/React Static Site ──────────────────────────────────────
   - type: web
