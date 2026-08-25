@@ -173,17 +173,77 @@ npm run build
 
 ## Current Release Status vs. Roadmap
 
-### Currently Implemented (RoadGuard v1.0)
-- ✅ **YOLOv8 Object Detection** — Fine-tuned detection on road defects.
-- ✅ **Severity Engine** — Analytical spatial & confidence scoring.
-- ✅ **Road Health Index (RHI)** — Standardized surface condition rating.
-- ✅ **EXIF / GPS Extraction** — Dual-path PIL/piexif coordinate extraction & geocoding.
-- ✅ **SQLite Persistence** — Inspection record schema auto-initialization.
-- ✅ **Maintenance Priority Engine** — Multi-factor urgency ranking.
-- ✅ **React Dashboard** — Dark-mode interface with live charts and map visualizers.
-- ✅ **Production Readiness** — Git LFS model tracking, environment variable configuration, clean repository architecture.
+### Currently Implemented (RoadGuard v1.1)
+- [x] YOLOv8 Object Detection - Fine-tuned detection on road defects.
+- [x] Severity Engine - Analytical spatial & confidence scoring.
+- [x] Road Health Index (RHI) - Standardized surface condition rating.
+- [x] EXIF / GPS Extraction - Dual-path PIL/piexif coordinate extraction & geocoding.
+- [x] SQLite Persistence - Inspection record schema auto-initialization.
+- [x] Maintenance Priority Engine - Multi-factor urgency ranking.
+- [x] React Dashboard - Dark-mode interface with live charts and map visualizers.
+- [x] Video Road Inspection (Phase 11) - Frame sampling, temporal deduplication, and aggregation.
+- [x] Predictive Road Deterioration (Phase 12) - Machine learning deterioration modeling using XGBoost.
+- [ ] Phase 13: Maintenance Route Optimization - Operational repair dispatch routing using Google OR-Tools.
 
-### Upcoming Planned Extensions
-- 🔮 **Phase 11: Video Stream Analytics** — Real-time continuous dashcam stream processing & spatial defect deduplication.
-- 🔮 **Phase 12: Machine Learning Deterioration Modeling** — Predictive degradation modeling using XGBoost.
-- 🔮 **Phase 13: Maintenance Route Optimization** — Operational repair dispatch routing using Google OR-Tools.
+---
+
+## Predictive Road Deterioration
+
+### Business Problem
+Managing road infrastructure requires proactive maintenance. By predicting the likelihood that a road segment will deteriorate into a high-priority maintenance case, municipal authorities can optimize budget allocation and prevent severe road failures.
+
+### Target Definition
+- Classifier Target (high_priority_next_period): Binary target set to 1 if the road priority score at the next inspection period is >= 65, else 0.
+- Regressor Target (future_road_health): Continuous target representing the road health score in the next inspection period.
+
+### Features
+The predictive analytics service utilizes the following historical inspection attributes:
+- Current Road Health Index, severity score, priority score, and defect count
+- Counts of individual defect classes (D00, D10, D20, D40)
+- Average confidence and maximum defect severity score
+- Video-specific indicators (damage frame percentage and unique deduplicated detections)
+- Number of previous inspections, days since last inspection, and daily deterioration rate
+
+All features represent information available strictly before the prediction horizon to prevent target leakage.
+
+### Architecture Explanation
+```
+Historical inspections
+↓
+Feature engineering
+↓
+Temporal dataset
+↓
+XGBoost deterioration model
+↓
+Risk probability
+↓
+Explainable prediction
+↓
+Maintenance decision support
+```
+
+### XGBoost Model & Chronological Split
+The classification model is built using XGBoost (XGBClassifier) with a fixed seed (random_state=42) for reproducibility. To prevent temporal leakage, train/validation splitting is performed chronologically (80% training, 20% validation).
+
+### Evaluation Metrics
+Validation metrics computed on the synthetic prototype dataset:
+- ROC-AUC: Area under the ROC curve for classification risk.
+- PR-AUC: Area under the Precision-Recall curve.
+- Precision, Recall, and F1 Score for high-priority classification.
+- Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) for future health regression.
+
+### Synthetic Data Limitation
+As the database starts without historical longitudinal inspection sequences, a deterministic generator (scripts/generate_prediction_dataset.py) is used to create prototype histories. These validation metrics must be interpreted as prototype-only until actual longitudinal data is gathered.
+
+### APIs
+- POST /api/predictions/deterioration : Run inference on segment payload and persist results.
+- GET /api/predictions/model : Retrieve model metadata, metrics, and training configuration.
+- GET /api/predictions/risk-summary : Retrieve aggregated risk categories across segments.
+- POST /api/predictions/train : Retrain the classification and regression models.
+
+### Training and Execution
+To retrain the models manually, run:
+```bash
+.venv\Scripts\python -c "from roadguard.backend.app.services.prediction import train_and_save_pipeline, load_raw_dataset; train_and_save_pipeline(load_raw_dataset())"
+```

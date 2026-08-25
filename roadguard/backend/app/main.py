@@ -9,14 +9,20 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api import health, detection, inspections, analytics, maintenance
+from .api import health, detection, inspections, analytics, maintenance, video, prediction, optimization
 from .services.inspection import ensure_schema
+from .services.video_inspection import ensure_video_schema
+from .services.prediction import ensure_prediction_schema
+from .services.maintenance_optimizer import ensure_optimization_schema
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """Initialise the SQLite database schema on application start."""
     ensure_schema()
+    ensure_video_schema()
+    ensure_prediction_schema()
+    ensure_optimization_schema()
     yield
 
 
@@ -56,3 +62,6 @@ app.include_router(detection.router, prefix="/api")
 app.include_router(inspections.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(maintenance.router, prefix="/api")
+app.include_router(video.router,       prefix="/api")
+app.include_router(prediction.router,  prefix="/api")
+app.include_router(optimization.router,prefix="/api")
