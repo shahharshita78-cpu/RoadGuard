@@ -17,8 +17,9 @@ services:
         value: /data/detections.db
 
   # ── Frontend: Vite/React Static Site ──────────────────────────────────────
-  - type: static
+  - type: web
     name: roadguard-ui
+    runtime: static
     rootDir: roadguard/frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
