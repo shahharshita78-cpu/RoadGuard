@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+let baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+if (baseURL && !baseURL.endsWith('/api') && baseURL.startsWith('http')) {
+  baseURL = `${baseURL}/api`
+}
 const api = axios.create({ baseURL })
 
 export interface BoundingBox { x1: number; y1: number; x2: number; y2: number }
