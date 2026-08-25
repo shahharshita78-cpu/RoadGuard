@@ -5,7 +5,7 @@ Uses XGBoost Classifier and Regressor models trained on longitudinal datasets.
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Tuple
 
@@ -129,7 +129,7 @@ def train_and_save_pipeline(
 
     metadata = {
         "version": VERSION,
-        "training_date": datetime.utcnow().isoformat(),
+        "training_date": datetime.now(timezone.utc).isoformat(),
         "feature_count": len(FEATURE_COLS),
         "feature_names": FEATURE_COLS,
         "training_sample_count": len(X_train),

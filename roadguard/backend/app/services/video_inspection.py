@@ -27,7 +27,7 @@ import json
 import sqlite3
 import tempfile
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -392,7 +392,7 @@ def process_video(
 
     return {
         "inspection_id": str(uuid.uuid4()),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "video_name": video_name,
         "duration_seconds": round(duration_seconds, 2),
         "total_frames": total_frames,

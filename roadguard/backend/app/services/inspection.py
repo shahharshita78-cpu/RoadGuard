@@ -25,7 +25,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
@@ -82,7 +82,7 @@ def create_inspection(
     """Insert a new inspection record and return it."""
     ensure_schema()
     inspection_id = str(uuid.uuid4())
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(timezone.utc).isoformat()
     damage_classes = json.dumps(list({d["damage_class"] for d in detections}))
     detection_count = len(detections)
 

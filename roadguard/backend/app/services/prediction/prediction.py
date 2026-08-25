@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -235,7 +235,7 @@ def run_prediction_pipeline(payload: dict) -> dict:
 
     prediction_result = {
         "prediction_id": str(uuid.uuid4()),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "road_segment_id": payload.get("road_segment_id", "UNKNOWN"),
         "model_version": meta.get("version", VERSION),
         "risk_probability": round(prob, 4),
