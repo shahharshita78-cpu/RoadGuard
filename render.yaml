@@ -36,4 +36,4 @@ services:
         fromService:
           type: web
           name: roadguard-api
-          property: url
+          property: host
