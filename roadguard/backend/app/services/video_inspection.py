@@ -39,7 +39,7 @@ from .optimizer import compute_maintenance_priority
 from .detector import _load_model  # imported here so tests can patch via this module's namespace
 
 # Reuse the same DB file as the image inspection service.
-DB_PATH = Path(__file__).parents[4] / "detections.db"
+from .db_path import DB_PATH
 
 # Supported video MIME types / extensions OpenCV can handle.
 SUPPORTED_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".m4v", ".mpeg", ".mpg"}

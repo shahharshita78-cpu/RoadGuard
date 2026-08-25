@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
 
-DB_PATH = Path(__file__).parents[4] / "detections.db"
+from .db_path import DB_PATH
 
 
 def _get_connection() -> sqlite3.Connection:

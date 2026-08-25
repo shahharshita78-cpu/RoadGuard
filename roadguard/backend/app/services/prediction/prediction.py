@@ -20,7 +20,7 @@ from .features import prepare_single_inference_features, FEATURE_COLS
 from .data import load_raw_dataset
 
 # DB path same as inspection service
-DB_PATH = Path(__file__).parents[4] / "detections.db"
+from ..db_path import DB_PATH
 
 # Risk category thresholds
 RISK_THRESHOLD_CRITICAL = 0.75

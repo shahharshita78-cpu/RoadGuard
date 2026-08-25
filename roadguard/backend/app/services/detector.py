@@ -13,7 +13,14 @@ from typing import List, Tuple
 
 from PIL import Image
 
-MODEL_PATH = Path(__file__).parents[4] / "models" / "road_damage.pt"
+import os
+
+_env_model = os.getenv("MODEL_PATH")
+if _env_model:
+    MODEL_PATH = Path(_env_model)
+else:
+    MODEL_PATH = Path(__file__).parents[4] / "models" / "road_damage.pt"
+
 
 # Lazy-loaded singleton
 _model = None
