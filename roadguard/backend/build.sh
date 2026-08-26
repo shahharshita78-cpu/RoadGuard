@@ -1,6 +1,7 @@
-﻿#!/usr/bin/env bash
-# Render build script for RoadGuard backend web service.
-# requirements.txt uses --index-url whl/cpu so pip resolves CPU torch first.
+#!/usr/bin/env bash
+# Render build script for RoadGuard backend.
+# requirements.txt sets --index-url whl/cpu as primary, so pip resolves
+# CPU-only torch/torchvision (191 MB) instead of the CUDA build (~700 MB).
 
 set -e
 
@@ -17,6 +18,6 @@ else
   if [ -f "../../models/road_damage.pt" ]; then
     echo "Default model weights verified at models/road_damage.pt"
   else
-    echo "WARNING: No model weights file found at models/road_damage.pt. Verify deployment."
+    echo "WARNING: No model weights file found at models/road_damage.pt."
   fi
 fi
