@@ -1,17 +1,10 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 # Render build script for RoadGuard backend web service.
-# Installs CPU-only PyTorch first to avoid pulling the heavy CUDA stack,
-# then installs remaining packages and fetches YOLO weights if a URL is provided.
+# requirements.txt uses --index-url whl/cpu so pip resolves CPU torch first.
 
 set -e
 
-echo "=== Installing CPU-only PyTorch (avoids 2 GB CUDA wheel) ==="
-pip install --index-url https://download.pytorch.org/whl/cpu \
-    "torch>=2.0.0,<3.0.0" \
-    "torchvision>=0.15.0,<1.0.0"
-
-echo "=== Installing Backend Dependencies ==="
-pip install -r requirements.txt --no-deps --ignore-requires-python 2>/dev/null || \
+echo "=== Installing Backend Dependencies (CPU-only PyTorch) ==="
 pip install -r requirements.txt
 
 if [ -n "$MODEL_DOWNLOAD_URL" ]; then
