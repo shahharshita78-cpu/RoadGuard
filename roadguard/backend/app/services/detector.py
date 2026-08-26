@@ -77,6 +77,8 @@ def run_inference(
         image_width: pixel width of the *original* input image
         image_height: pixel height of the *original* input image
     """
+    import gc
+
     model = _load_model()
     img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
     image_width, image_height = img.size
@@ -86,26 +88,34 @@ def run_inference(
     scale_x = image_width / img_for_infer.width
     scale_y = image_height / img_for_infer.height
 
-    results = model.predict(source=img_for_infer, conf=confidence_threshold, verbose=False)
-
     detections: List[dict] = []
-    for result in results:
-        for box in result.boxes:
-            cls_id = int(box.cls[0])
-            conf = float(box.conf[0])
-            # Scale bounding box back to original image coordinates
-            x1, y1, x2, y2 = (int(v) for v in box.xyxy[0].tolist())
-            detections.append(
-                {
-                    "damage_class": model.names[cls_id],
-                    "confidence": round(conf, 4),
-                    "bbox": {
-                        "x1": int(x1 * scale_x),
-                        "y1": int(y1 * scale_y),
-                        "x2": int(x2 * scale_x),
-                        "y2": int(y2 * scale_y),
-                    },
-                }
+    try:
+        with torch.no_grad():
+            results = model.predict(
+                source=img_for_infer, conf=confidence_threshold, verbose=False
             )
+
+        for result in results:
+            for box in result.boxes:
+                cls_id = int(box.cls[0])
+                conf = float(box.conf[0])
+                x1, y1, x2, y2 = (int(v) for v in box.xyxy[0].tolist())
+                detections.append(
+                    {
+                        "damage_class": model.names[cls_id],
+                        "confidence": round(conf, 4),
+                        "bbox": {
+                            "x1": int(x1 * scale_x),
+                            "y1": int(y1 * scale_y),
+                            "x2": int(x2 * scale_x),
+                            "y2": int(y2 * scale_y),
+                        },
+                    }
+                )
+        # Free YOLO result tensors immediately to reclaim RAM
+        del results
+    finally:
+        del img, img_for_infer
+        gc.collect()
 
     return detections, image_width, image_height
