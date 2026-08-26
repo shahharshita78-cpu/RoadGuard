@@ -15,6 +15,14 @@ services:
         value: https://roadguard-ui.onrender.com,https://roadguard-ui-duir.onrender.com,http://localhost:5173,http://localhost:5174,http://localhost:3000
       - key: ROADGUARD_DB_PATH
         value: /tmp/roadguard/detections.db
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
+      - key: TORCH_NUM_THREADS
+        value: "1"
+      - key: YOLO_VERBOSE
+        value: "False"
 
   # ── Frontend: Vite/React Static Site ──────────────────────────────────────
   - type: web
