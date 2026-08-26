@@ -33,7 +33,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: roadguard-api
-          property: host
+        value: https://roadguard-api-duir.onrender.com
